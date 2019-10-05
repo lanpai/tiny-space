@@ -61,43 +61,19 @@ double PlanetaryBodies(double x, double y, double t)
         double deltaY = body.y - y;
         double distance = sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        double radius = std::min(body.radius, distance);
+        if (distance != 0) {
+            double radius = std::min(body.radius, distance);
 
-        double mass = body.density * (4.0 / 3.0) * PI * radius * radius * radius;
+            double mass = body.density * (4.0 / 3.0) * PI * radius * radius * radius;
 
-        double fieldStrength = (G * mass)/(distance * distance);
+            double fieldStrength = (G * mass)/(distance * distance);
 
-        fieldX += (deltaX / distance) * fieldStrength;
-        fieldY += (deltaY / distance) * fieldStrength;
+            fieldX += (deltaX / distance) * fieldStrength;
+            fieldY += (deltaY / distance) * fieldStrength;
+        }
     }
 
     return -1.0 * sqrt(fieldX * fieldX + fieldY * fieldY);
-
-
-    /*double mass = 0.0;
-    double sumX = 0.0f;
-    double sumY = 0.0f;
-    for (Body body : bodies)
-    {
-        double deltaX = std::abs(body.x - x);
-        double deltaY = std::abs(body.y - y);
-
-        sumX += body.x;
-        sumY += body.y;
-
-        double radius = std::min(body.radius, sqrt(deltaX * deltaX + deltaY * deltaY));
-        mass += body.density * (4.0/3.0) * PI * radius * radius * radius;
-    }
-
-    double avgX = sumX / bodies.size();
-    double avgY = sumY / bodies.size();
-
-    double deltaX = std::abs(avgX - x);
-    double deltaY = std::abs(avgY - y);
-
-    double denom = sqrt(deltaX * deltaX + deltaY * deltaY);
-    denom *= denom;
-    return -1 * (G * mass)/denom;*/
 }
 
 ColorRGBA8 PlanetaryBodiesColor(double x, double y, double t)
