@@ -4,8 +4,9 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <ratio>
 
-#define G 6.6740e-11
+#define G 6.674e-11
 
 #define Sun_Radius 6378100
 #define Sun_Density 1408
@@ -13,28 +14,28 @@
 
 struct Body
 {
-    Body(long double density, long double radius, long double x, long double y)
+    Body(double density, double radius, double x, double y)
     {
         this->density = density;
         this->radius = radius;
         this->x = x;
         this->y = y;
     }
-    long double density;
-    long double radius;
-    long double x, y;
+    double density;
+    double radius;
+    double x, y;
     float2 vel;
     float2 acc;
 };
 
 std::vector<Body> bodies;
 
-long double Spiral(long double x, long double y, long double t)
+double Spiral(double x, double y, double t)
 {
     return (cos(sqrt(x * x + y * y) + t) + 1.0) / 2.0;
 }
 
-ColorRGBA8 SpiralColor(long double x, long double y, long double t)
+ColorRGBA8 SpiralColor(double x, double y, double t)
 {
     return ColorRGBA8(
             (1 - ((cos(sqrt(x * x + y * y) + t) + 1.0) / 2.0)) * 255,
@@ -43,12 +44,12 @@ ColorRGBA8 SpiralColor(long double x, long double y, long double t)
             255);
 }
 
-long double Exp(long double x, long double y, long double t)
+double Exp(double x, double y, double t)
 {
     return x * x + y * y;
 }
 
-ColorRGBA8 ExpColor(long double x, long double y, long double t)
+ColorRGBA8 ExpColor(double x, double y, double t)
 {
     return ColorRGBA8(
             127,
@@ -57,28 +58,29 @@ ColorRGBA8 ExpColor(long double x, long double y, long double t)
             255);
 }
 
-float2 CalcField(long double x, long double y)
+float2 CalcField(double x, double y)
 {
-    float2 field;
+    double fieldX = 0.0;
+    double fieldY = 0.0;
 
     for (Body body : bodies) {
         if (body.x == x && body.y == y) continue;
 
-        long double deltaX = body.x - x;
-        long double deltaY = body.y - y;
-        long double distance = sqrt(deltaX * deltaX + deltaY * deltaY);
+        double deltaX = body.x - x;
+        double deltaY = body.y - y;
+        double distance = sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        long double radius = std::min(body.radius, distance);
+        double radius = std::min(body.radius, distance);
 
-        long double mass = body.density * (4.0 / 3.0) * PI * radius * radius * radius;
+        double mass = body.density * (4.0 / 3.0) * PI * radius * radius * radius;
 
-        long double fieldStrength = (G * mass)/(distance * distance);
+        double fieldStrength = (G * mass)/(distance * distance);
 
-        field.x += (deltaX / distance) * fieldStrength;
-        field.y += (deltaY / distance) * fieldStrength;
+        fieldX += (deltaX / distance) * fieldStrength;
+        fieldY += (deltaY / distance) * fieldStrength;
     }
 
-    return field;
+    return float2(fieldX, fieldY);
 }
 
 double PlanetaryBodies(double x, double y, double t)
@@ -100,7 +102,7 @@ ColorRGBA8 PlanetaryBodiesColor(double x, double y, double t)
 
 void PlanetaryUpdate(double delta)
 {
-    delta *= 360;
+    delta *= 60;
     double totalDelta = delta;
     double maxDeltaStep = 0.05;
     for (double deltaElapsed = 0.0;
@@ -110,8 +112,7 @@ void PlanetaryUpdate(double delta)
 
         for (Body &body : bodies) {
             float2 field = CalcField(body.x, body.y);
-            if (sqrt(field.x * field.x + field.y * field.y) > 1e-5)
-                body.acc = field;
+            body.acc = field;
         }
 
         for (Body &body : bodies) {
@@ -134,6 +135,10 @@ int main(int argc, char *argv[]) {
     bodies.back().vel.x = 1.5e3;
     bodies.push_back(Body(Sun_Density * 0.7, Sun_Radius * 0.7, 0, -6.0 * Sun_Radius));
     bodies.back().vel.x = -1.5e3;
+    bodies.push_back(Body(Sun_Density * 0.7, Sun_Radius * 0.7, -6.0 * Sun_Radius, 0));
+    bodies.back().vel.y = -1.5e3;
+    bodies.push_back(Body(Sun_Density * 0.7, Sun_Radius * 0.7, 6.0 * Sun_Radius, 0));
+    bodies.back().vel.y = 1.5e3;
 
     GraphEngine engine(&PlanetaryBodies, &PlanetaryBodiesColor);
     engine.SetOnUpdate(&PlanetaryUpdate);
