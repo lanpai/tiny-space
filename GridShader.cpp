@@ -15,11 +15,13 @@ void GridShader::Init()
 
             out vec3 fragPosition;
             out vec4 fragColor;
+            out vec4 delta;
 
             uniform mat4 view;
 
             void main() {
-                gl_Position = view * vec4(vertPosition, 1.0f);
+                delta = view * vec4(vertPosition, 1.0f);
+                gl_Position = delta;
                 
                 fragPosition = vertPosition;
                 fragColor = vertColor;
@@ -30,11 +32,19 @@ void GridShader::Init()
 
             in vec3 fragPosition;
             in vec4 fragColor;
+            in vec4 delta;
 
             out vec4 color;
 
             void main() {
+                float grid = 2.0;
+                float gridWidth = length(delta.xyz)/ 300;
+
                 color = fragColor;
+                if (fragPosition.x - (grid * floor(fragPosition.x / grid)) < gridWidth ||
+                    fragPosition.z - (grid * floor(fragPosition.z / grid)) < gridWidth) {
+                    color = fragColor + vec4(0.7, 0.7, 0.7, 0.0);
+                }
             }
         )"
     );
@@ -112,10 +122,13 @@ void GridShader::Render()
     this->Use();
     glBindVertexArray(this->_vaoID);
 
-    glLineWidth(2.0);
+    //glLineWidth(2.0);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
 
     // Drawing vertices
-    glDrawElements(GL_LINES, this->_numIndices, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_QUADS, this->_numIndices, GL_UNSIGNED_INT, 0);
 
     // Unbinding the GLSL program and unbinding the VAO
     glBindVertexArray(0);
@@ -164,21 +177,22 @@ void GridShader::DrawGrid(
     int gridX = 0;
     int gridY = 0;
 
+    int row = std::ceil((xmax - xmin) / this->_deltaX) + 1;
+    int col = std::ceil((ymax - ymin) / this->_deltaY) + 1;
     this->_vertices.reserve(
             this->_vertices.size() +
-            std::ceil((xmax - xmin) / this->_deltaX) +
-            std::ceil((ymax - ymin) / this->_deltaY));
+            row * col - 1);
     this->_indices.reserve(
             this->_indices.size() +
-            std::ceil((xmax - xmin) / this->_deltaX) +
-            std::ceil((ymax - ymin) / this->_deltaY));
+            row * col * 4 - row - col);
 
-    int row = std::ceil((xmax - xmin) / this->_deltaX) + 1;
-    for (double x = xmin; x <= xmax; x += this->_deltaX)
+    for (int indexX = 0; indexX < row; indexX++)
     {
+        double x = xmin + this->_deltaX * indexX;
         x = (x > xmax) ? xmax : x;
-        for (double y = ymin; y <= ymax; y += this->_deltaY)
+        for (int indexY = 0; indexY < col; indexY++ )
         {
+            double y = ymin + this->_deltaY * indexY;
             y = (y > ymax) ? ymax : y;
 
             int firstIndex = this->_vertices.size();
@@ -188,13 +202,19 @@ void GridShader::DrawGrid(
                         x, func(x, y, t), y),
                     color(x, y, t)));
 
-            if (y != ymin)
+            /*if (y != ymin)
             {
                 this->_indices.push_back(firstIndex);
                 this->_indices.push_back(firstIndex - 1);
             }
             if (x != xmin) {
                 this->_indices.push_back(firstIndex);
+                this->_indices.push_back(firstIndex - row);
+            }*/
+            if (y != ymin && x != xmin) {
+                this->_indices.push_back(firstIndex);
+                this->_indices.push_back(firstIndex - 1);
+                this->_indices.push_back(firstIndex - row - 1);
                 this->_indices.push_back(firstIndex - row);
             }
 

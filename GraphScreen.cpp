@@ -51,8 +51,8 @@ void GraphScreen::OnDraw()
     this->_shader.DrawGrid(
             this->_func,
             this->_color,
-            -50.0, 50.0,
-            -50.0, 50.0,
+            -25.0, 25.0,
+            -25.0, 25.0,
             this->_time);
     /*this->_shader.DrawLine(
             Vertex3D(

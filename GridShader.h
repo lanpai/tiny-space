@@ -34,8 +34,8 @@ class GridShader : public IGLSLShader
         std::vector<Vertex3D> _vertices;
         std::vector<unsigned int> _indices;
 
-        double _deltaX = 0.5;
-        double _deltaY = 0.5;
+        double _deltaX = 0.2;
+        double _deltaY = 0.2;
 };
 
 #endif

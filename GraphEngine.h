@@ -11,13 +11,17 @@ class GraphEngine : public IEngine
         GraphEngine(
                 double (*func)(double, double, double),
                 ColorRGBA8 (*color)(double, double, double));
+        void SetOnUpdate(void (*update)(double)) { this->_update = update; };
 
     protected:
         virtual void OnPreInit() override;
         virtual void OnPostInit() override;
+        virtual void OnUpdate() override;
 
     private:
+        static void _DefaultUpdate(double) {};
         GraphScreen *_graph;
+        void (*_update)(double);
 };
 
 #endif
