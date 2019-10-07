@@ -54,27 +54,6 @@ void GraphScreen::OnDraw()
             -25.0, 25.0,
             -25.0, 25.0,
             this->_time);
-    /*this->_shader.DrawLine(
-            Vertex3D(
-                float3(-10.0, 0.0, 0.0),
-                ColorRGBA8(127, 127, 127, 255)),
-            Vertex3D(
-                float3(10.0, 0.0, 0.0),
-                ColorRGBA8(255, 255, 255, 255)));
-    this->_shader.DrawLine(
-            Vertex3D(
-                float3(0.0, 0.0, -10.0),
-                ColorRGBA8(127, 127, 127, 255)),
-            Vertex3D(
-                float3(0.0, 0.0, 10.0),
-                ColorRGBA8(255, 255, 255, 255)));
-    this->_shader.DrawLine(
-            Vertex3D(
-                float3(0.0, -10.0, 0.0),
-                ColorRGBA8(127, 127, 127, 255)),
-            Vertex3D(
-                float3(0.0, 10.0, 0.0),
-                ColorRGBA8(255, 255, 255, 255)));*/
     this->_shader.End();
     this->_shader.Render();
 }
