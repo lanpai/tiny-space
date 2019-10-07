@@ -83,8 +83,8 @@ float2 CalcField(long double x, long double y)
 
 double PlanetaryBodies(double x, double y, double t)
 {
-    x *= Sun_Radius / 3.0;
-    y *= Sun_Radius / 3.0;
+    x *= Sun_Radius / 3.5;
+    y *= Sun_Radius / 3.5;
 
     //x += bodies[0].x;
     //y += bodies[0].y;
@@ -100,7 +100,7 @@ ColorRGBA8 PlanetaryBodiesColor(double x, double y, double t)
 
 void PlanetaryUpdate(double delta)
 {
-    delta *= 500;
+    delta *= 360;
     double totalDelta = delta;
     double maxDeltaStep = 0.05;
     for (double deltaElapsed = 0.0;
@@ -110,7 +110,7 @@ void PlanetaryUpdate(double delta)
 
         for (Body &body : bodies) {
             float2 field = CalcField(body.x, body.y);
-            if (sqrt(field.x * field.x + field.y * field.y) > 0.001)
+            if (sqrt(field.x * field.x + field.y * field.y) > 1e-5)
                 body.acc = field;
         }
 

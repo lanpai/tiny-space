@@ -128,7 +128,7 @@ void GridShader::Render()
     glDisable(GL_CULL_FACE);
 
     // Drawing vertices
-    glDrawElements(GL_QUADS, this->_numIndices, GL_UNSIGNED_INT, 0);
+    glDrawElements(this->drawQuads ? GL_QUADS : GL_LINES, this->_numIndices, GL_UNSIGNED_INT, 0);
 
     // Unbinding the GLSL program and unbinding the VAO
     glBindVertexArray(0);
@@ -202,20 +202,24 @@ void GridShader::DrawGrid(
                         x, func(x, y, t), y),
                     color(x, y, t)));
 
-            /*if (y != ymin)
-            {
-                this->_indices.push_back(firstIndex);
-                this->_indices.push_back(firstIndex - 1);
+            if (this->drawQuads) {
+                if (y != ymin && x != xmin) {
+                    this->_indices.push_back(firstIndex);
+                    this->_indices.push_back(firstIndex - 1);
+                    this->_indices.push_back(firstIndex - row - 1);
+                    this->_indices.push_back(firstIndex - row);
+                }
             }
-            if (x != xmin) {
-                this->_indices.push_back(firstIndex);
-                this->_indices.push_back(firstIndex - row);
-            }*/
-            if (y != ymin && x != xmin) {
-                this->_indices.push_back(firstIndex);
-                this->_indices.push_back(firstIndex - 1);
-                this->_indices.push_back(firstIndex - row - 1);
-                this->_indices.push_back(firstIndex - row);
+            else {
+                if (y != ymin)
+                {
+                    this->_indices.push_back(firstIndex);
+                    this->_indices.push_back(firstIndex - 1);
+                }
+                if (x != xmin) {
+                    this->_indices.push_back(firstIndex);
+                    this->_indices.push_back(firstIndex - row);
+                }
             }
 
             gridY++;

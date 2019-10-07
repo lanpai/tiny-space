@@ -25,6 +25,8 @@ class GridShader : public IGLSLShader
                 double ymin, double ymax,
                 double t);
 
+        bool drawQuads;
+
     private:
         unsigned int _vaoID;
         unsigned int _vboID; 
